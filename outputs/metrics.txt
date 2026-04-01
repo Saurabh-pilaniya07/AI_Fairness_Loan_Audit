@@ -1,0 +1,9 @@
+=== Baseline ===
+Accuracy: 0.6550
+DP Diff: 0.0446
+EO Diff: 0.1571
+
+=== After Mitigation ===
+Accuracy: 0.6650
+DP Diff: 0.0179
+EO Diff: 0.0435
