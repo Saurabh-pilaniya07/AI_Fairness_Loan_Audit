@@ -4,41 +4,40 @@
 
 ## Overview
 
-This project investigates **algorithmic bias and fairness risks** in machine learning systems used for loan approval decisions. It moves beyond conventional performance metrics (e.g., accuracy) to evaluate **fairness, interpretability, and ethical implications** in high-stakes AI applications.
+This project investigates **algorithmic bias and fairness risks** in machine learning models used for loan approval decisions. It moves beyond traditional performance metrics to evaluate **fairness, interpretability, and ethical implications** in high-stakes AI systems.
 
-The work implements a **Responsible AI pipeline**, integrating:
+The project implements a complete **Responsible AI pipeline**, including:
 
-* Baseline machine learning modeling
+* Baseline machine learning model
 * Bias detection using fairness metrics
 * Bias mitigation using Fairlearn
 * Model explainability using SHAP
-* Empirical analysis of fairness–accuracy trade-offs
+* Analysis of fairness–accuracy trade-offs
 
 ---
 
 ## Objectives
 
-* Detect bias in predictions across demographic groups
-* Evaluate fairness using standard and advanced metrics
-* Apply mitigation techniques to reduce disparity
-* Analyze trade-offs between fairness and predictive performance
-* Align technical findings with **AI governance frameworks (EU AI Act)**
+* Detect bias across demographic groups
+* Evaluate fairness using multiple metrics
+* Apply mitigation techniques to reduce bias
+* Analyze fairness vs accuracy trade-offs
+* Align results with **EU AI Act principles**
 
 ---
 
 ## Dataset
 
-**German Credit Dataset**
-(Source: UCI Machine Learning Repository)
+**German Credit Dataset** (https://github.com/selva86/datasets/blob/master/GermanCredit.csv)
 
-### Features include:
+### Features:
 
 * Age
 * Credit amount
 * Loan duration
 * Financial attributes
 
-### Target Variable:
+### Target:
 
 * `1` → Good credit
 * `0` → Bad credit
@@ -57,18 +56,18 @@ The work implements a **Responsible AI pipeline**, integrating:
 * Evaluated using:
 
   * Train/Test split
-  * **5-fold Cross-Validation**
+  * **Stratified 5-fold Cross-Validation**
 
 ---
 
 ### 2. Fairness Evaluation
 
-#### Basic Metrics:
+#### Metrics:
 
 * Demographic Parity (DP)
 * Equal Opportunity (EO)
 
-#### Advanced Metrics (Fairlearn):
+#### Advanced (Fairlearn):
 
 * Demographic Parity Difference
 * Equalized Odds Difference
@@ -77,17 +76,17 @@ The work implements a **Responsible AI pipeline**, integrating:
 
 ### 3. Bias Mitigation
 
-* Technique: **Exponentiated Gradient Reduction**
+* Method: **Exponentiated Gradient Reduction**
 * Constraint: Demographic Parity
-* Objective: Reduce disparity across sensitive groups
+* Tuned for balanced fairness–accuracy trade-off
 
 ---
 
 ### 4. Explainability (SHAP)
 
 * Global feature importance
-* Local prediction explanations
-* Understanding model decision structure
+* Local explanations
+* Decision behavior analysis
 
 ---
 
@@ -95,35 +94,36 @@ The work implements a **Responsible AI pipeline**, integrating:
 
 ### Cross-Validation Performance
 
-* Accuracy: **0.665 ± 0.018**
+* Accuracy: **0.643 ± 0.033**
 
-This indicates stable model performance and low variance across folds.
-
----
-
-### Before Mitigation
-
-* Accuracy: **0.670**
-* Demographic Parity Difference: **0.0506**
-* Equalized Odds Difference: **0.1367**
+ Indicates stable and reproducible model performance.
 
 ---
 
-### After Mitigation
+### Fairness Metrics: Before vs After Mitigation
 
-* Accuracy: **0.645**
-* Demographic Parity Difference: **0.0164**
-* Equalized Odds Difference: **0.1041**
+| Metric        | Before | After  | Improvement    |
+| ------------- | ------ | ------ | -------------- |
+| Accuracy      | 0.640  | 0.645  | +0.8%          |
+| DP Difference | 0.3040 | 0.1055 | ~65% reduction |
+| EO Difference | 0.3367 | 0.1512 | ~55% reduction |
 
 ---
 
-### Comparison
+### Visualizations
 
-| Metric        | Before | After  |
-| ------------- | ------ | ------ |
-| Accuracy      | 0.670  | 0.645  |
-| DP Difference | 0.0506 | 0.0164 |
-| EO Difference | 0.1367 | 0.1041 |
+**Fairness Comparison**
+![Fairness Before vs After](outputs/bias_comparison.png)
+
+---
+
+**Prediction Distribution (Post-Mitigation)**
+![Prediction Distribution](outputs/prediction_distribution.png)
+
+---
+
+**SHAP Feature Importance**
+![SHAP Summary](outputs/shap_summary.png)
 
 ---
 
@@ -131,43 +131,35 @@ This indicates stable model performance and low variance across folds.
 
 ### 1. Significant Bias Reduction
 
-* DP Difference reduced by **~67%**
-* EO Difference reduced by **~24%**
+* DP reduced by ~65%
+* EO reduced by ~55%
 
-Bias mitigation effectively reduces demographic disparities.
+ Mitigation effectively reduces demographic disparities.
 
 ---
 
-### 2. Fairness–Accuracy Trade-off
+### 2. No Accuracy Trade-off
 
-* Accuracy decreased: **0.670 → 0.645**
+* Accuracy slightly improved (**+0.8%**)
 
-Insight:
-
-> Fairness improvements may come at the cost of predictive performance, highlighting inherent trade-offs in responsible AI systems.
+ Strong result: fairness improved **without degrading performance**
 
 ---
 
 ### 3. Decision Behavior Shift
 
-Post-mitigation predictions:
+* **80% approvals vs 20% rejections**
 
-* **83% approvals**
-* **17% rejections**
-
-Interpretation:
-
-> The model becomes more permissive, which may improve fairness but introduces potential risks of over-approval.
+ Model becomes slightly more permissive after mitigation.
 
 ---
 
-### 4. Model Stability
+### 4. Model Stability & Reproducibility
 
-* Cross-validation variance is low (**±0.018**)
+* Cross-validation variance: **±0.033**
+* Fixed random seeds ensure consistent results
 
-Insight:
-
-> The model generalizes well and is not overfitting to a specific split.
+ Results are **reliable and reproducible**
 
 ---
 
@@ -176,47 +168,45 @@ Insight:
 * DP improved significantly
 * EO improved moderately
 
-Insight:
-
-> Different fairness metrics capture different aspects of bias; no single metric is sufficient.
+ No single fairness metric captures all bias aspects
 
 ---
 
 ## Limitations
 
-* Bias mitigation may lead to overly permissive decision behavior
-* Results depend on dataset characteristics and feature selection
-* Fairness metrics do not fully capture societal or long-term impact
+* Residual bias still exists after mitigation
+* Fairness improvements may affect decision behavior
 * SHAP assumes feature independence
+* Results depend on dataset characteristics
 
 ---
 
 ## Ethical Implications
 
-* Reducing bias alone is insufficient
-* Decision quality and accountability must be considered
-* Sensitive attributes (e.g., age) require careful handling
+* Fairness ≠ correctness
+* Bias reduction alone is insufficient
+* Sensitive features (e.g., age) require careful governance
 
-Responsible AI requires balancing:
+ Responsible AI requires balancing:
 
 * Fairness
 * Accuracy
-* Real-world consequences
+* Real-world impact
 
 ---
 
 ## Policy & Governance Relevance
 
-This work aligns with **high-risk AI system requirements** under the EU AI Act, particularly in:
+This work aligns with **EU AI Act requirements** for high-risk systems such as:
 
 * Credit scoring
 * Financial decision-making
 
-Key compliance dimensions demonstrated:
+Key compliance aspects demonstrated:
 
 * Bias monitoring
-* Transparency through explainability
-* Accountability via measurable metrics
+* Transparency
+* Accountability
 
 ---
 
@@ -227,7 +217,7 @@ Key compliance dimensions demonstrated:
 * Scikit-learn
 * Fairlearn
 * SHAP
-* Matplotlib, Seaborn
+* Matplotlib
 
 ---
 
@@ -259,46 +249,44 @@ python main.py
 ## Outputs
 
 * Fairness metrics (before vs after mitigation)
-* Cross-validation performance
-* Bias comparison visualizations
+* Cross-validation results
+* Bias comparison plots
 * Prediction distribution analysis
-* SHAP explainability plots
+* SHAP explainability visualizations
 
 ---
 
 ## Future Work
 
-* Extend analysis to multiple sensitive attributes (gender, income)
-* Integrate causal fairness approaches
-* Evaluate on real-world financial datasets
-* Incorporate regulatory compliance auditing pipelines
+* Multi-attribute fairness (gender, income)
+* Causal fairness methods
+* Real-world financial datasets
+* Regulatory compliance automation
 
 ---
 
 ## Research Positioning
 
-This project reflects a transition from:
+This project demonstrates a shift from:
 
 > **Model-centric AI → Responsible AI systems**
 
-It emphasizes:
+Focusing on:
 
 * Ethical deployment
 * Fairness-aware design
-* Alignment between machine learning systems and regulatory frameworks
+* Policy-aligned machine learning
 
 ---
 
 ## Conclusion
 
-This work demonstrates that **accuracy alone is insufficient** for evaluating AI systems in high-stakes domains.
+This work shows that **accuracy alone is insufficient** in high-stakes AI systems.
 
-By integrating fairness evaluation, mitigation, and explainability, it highlights the need for:
+By integrating fairness, mitigation, and explainability, it highlights:
 
-* Multi-dimensional evaluation
-* Trade-off awareness
-* Policy-aligned system design
+* The importance of multi-metric evaluation
+* The complexity of fairness–performance trade-offs
+* The need for policy-aligned AI development
 
-**Responsible AI requires both technical rigor and ethical accountability.**
-
----
+ **Responsible AI requires both technical rigor and ethical accountability.**
