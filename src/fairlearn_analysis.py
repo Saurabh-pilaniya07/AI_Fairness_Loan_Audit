@@ -16,15 +16,21 @@ def compute_fairness_metrics(y_true, y_pred, sensitive_feature):
 from fairlearn.reductions import ExponentiatedGradient, DemographicParity
 from sklearn.ensemble import RandomForestClassifier
 
-def mitigate_bias(X_train, y_train, sensitive_feature):
+def mitigate_bias(X_train, y_train, sensitive_features):
     
-    base_model = RandomForestClassifier()
-    
+    base_model = RandomForestClassifier(
+        n_estimators=200,
+        max_depth=10,
+        min_samples_leaf=5,
+        random_state=42
+    )
+
     mitigator = ExponentiatedGradient(
         base_model,
-        constraints=DemographicParity()
+        constraints=DemographicParity(),
+        eps=0.02   # IMPORTANT (less strict → better accuracy)
     )
-    
-    mitigator.fit(X_train, y_train, sensitive_features=sensitive_feature)
-    
+
+    mitigator.fit(X_train, y_train, sensitive_features=sensitive_features)
+
     return mitigator
