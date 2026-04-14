@@ -1,9 +1,9 @@
 === Baseline ===
 Accuracy: 0.6700
-DP Diff: 0.1503
-EO Diff: 0.2367
+DP Diff: 0.0506
+EO Diff: 0.1367
 
 === After Mitigation ===
-Accuracy: 0.6650
-DP Diff: 0.0446
-EO Diff: 0.1367
+Accuracy: 0.6450
+DP Diff: 0.0164
+EO Diff: 0.1041

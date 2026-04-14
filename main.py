@@ -35,6 +35,15 @@ sensitive_test = df.loc[X_test.index, 'age_group']
 print("\nTraining baseline model...")
 model = train_model(X_train, y_train)
 
+# Cross-Validation (NEW)
+from sklearn.model_selection import cross_val_score
+import numpy as np
+
+cv_scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+
+print("\nCross-Validation Accuracy:")
+print(f"Accuracy: {cv_scores.mean():.3f} ± {cv_scores.std():.3f}")
+
 # 5. Predictions
 y_pred = model.predict(X_test)
 
