@@ -86,6 +86,13 @@ Sensitive Attribute:
 
 ## Results
 
+### Fairness Metrics Comparison
+![Fairness Comparison](outputs/fairness_comparison.png)
+
+### SHAP Feature Importance
+![SHAP Summary](outputs/shap_summary.png)
+
+
 ### Before Mitigation:
 
 * Accuracy: **0.655**
