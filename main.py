@@ -10,6 +10,12 @@ from sklearn.model_selection import train_test_split
 import os
 import pandas as pd
 
+import numpy as np
+import random
+
+np.random.seed(42)
+random.seed(42)
+
 # Output directory exists
 if not os.path.exists("outputs"):
     os.makedirs("outputs")
@@ -24,7 +30,7 @@ X, y, df = preprocess(df)
 
 # 3. Train/Test Split
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X, y, test_size=0.2, random_state=42, stratify=y
 )
 
 # Sensitive feature
@@ -35,17 +41,26 @@ sensitive_test = df.loc[X_test.index, 'age_group']
 print("\nTraining baseline model...")
 model = train_model(X_train, y_train)
 
-# Cross-Validation (NEW)
-from sklearn.model_selection import cross_val_score
-import numpy as np
+from src.explain_shap import shap_analysis
 
-cv_scores = cross_val_score(model, X, y, cv=5, scoring='accuracy')
+# Cross-Validation
+from sklearn.model_selection import cross_val_score
+
+from sklearn.model_selection import StratifiedKFold
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+cv_scores = cross_val_score(model, X, y, cv=cv, scoring='accuracy')
 
 print("\nCross-Validation Accuracy:")
 print(f"Accuracy: {cv_scores.mean():.3f} ± {cv_scores.std():.3f}")
 
 # 5. Predictions
 y_pred = model.predict(X_test)
+
+
+print("\nRunning SHAP...")
+shap_analysis(model, X_test)
 
 # 6. Accuracy Evaluation
 accuracy = evaluate_model(y_test, y_pred)
@@ -124,3 +139,17 @@ try:
     
 except:
     print("Visualization module not found, skipping plots.")
+
+import matplotlib.pyplot as plt
+
+# Prediction Distribution Plot
+plt.figure()
+pd.Series(y_pred_mitigated).value_counts().plot(kind='bar')
+plt.title("Prediction Distribution After Mitigation")
+plt.xlabel("Class")
+plt.ylabel("Count")
+
+plt.savefig("outputs/prediction_distribution.png")
+plt.close()
+
+print("Prediction distribution plot saved.")
