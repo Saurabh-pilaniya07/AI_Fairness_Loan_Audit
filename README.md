@@ -26,6 +26,10 @@ The project implements a complete Responsible AI pipeline:
 
 ## Dataset
 
+**German Credit Dataset**  
+Source: [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data)  
+Download the file and place it in the `data/` folder as `german_credit.csv` before running.
+
 * **German Credit Dataset**
 * Features include:
 
