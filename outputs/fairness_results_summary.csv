@@ -1,0 +1,9 @@
+Metric,Before Mitigation,After Mitigation,Change
+Accuracy,0.640,0.675,+3.5%
+ROC-AUC,0.636,N/A,—
+DP Difference,0.3040,0.2002,−34%
+EO Difference,0.3367,0.1875,−44%
+Overall Approval Rate,69.0%,81.5%,+12.5%
+Young Group Approval Rate,nan%,nan%,+nan%
+Adult Group Approval Rate,nan%,nan%,+nan%
+CV Accuracy (5-fold),0.673 ± 0.019,(baseline only),—
