@@ -1,235 +1,260 @@
 # Bias, Fairness & Explainability Audit in Loan Approval AI Systems
 
----
+> **When demographic parity is enforced as a hard constraint, does the optimizer achieve genuine fairness — or simply inflate approval rates?**
 
-## Overview
-
-This project investigates **algorithmic bias and fairness risks** in machine learning models used for loan approval decisions. It moves beyond traditional performance metrics to evaluate **fairness, interpretability, and ethical implications** in high-stakes AI systems.
-
-The project implements a complete **Responsible AI pipeline**, including:
-
-* Baseline machine learning model
-* Bias detection using fairness metrics
-* Bias mitigation using Fairlearn
-* Model explainability using SHAP
-* Analysis of fairness–accuracy trade-offs
+A complete Responsible AI audit pipeline applying bias detection, fairness-aware mitigation,
+and SHAP explainability to credit scoring decisions — with direct EU AI Act compliance mapping.
 
 ---
 
-## Objectives
+## Why This Matters
 
-* Detect bias across demographic groups
-* Evaluate fairness using multiple metrics
-* Apply mitigation techniques to reduce bias
-* Analyze fairness vs accuracy trade-offs
-* Align results with **EU AI Act principles**
+Credit scoring models affect millions of lending decisions. When these models encode
+demographic bias — even unintentionally — the consequences are:
+
+- **Discriminatory outcomes** for protected groups (age, gender, ethnicity)
+- **Regulatory liability** under EU AI Act Annex III (credit scoring = high-risk)
+- **Hidden financial risk** when "fair" models over-approve unsuitable applicants
+
+This project shows that **measuring fairness metrics is not enough**.
+The over-approval paradox reveals a risk that demographic parity compliance can mask.
+
+---
+
+## Research Question
+
+> When demographic parity is enforced as a hard constraint on a credit scoring model,
+> does the optimizer achieve parity by genuinely improving decisions for the
+> disadvantaged group — or simply by inflating approvals across the board?
+
+If the latter, the model is *statistically fair but financially unsound* — a form
+of hidden risk that fairness metrics alone cannot detect.
+
+---
+
+## Key Findings
+
+| Finding | Result |
+|---------|--------|
+| **DP Difference** (before → after) | 0.3040 → 0.1055 (~65% reduction) |
+| **EO Difference** (before → after) | 0.3367 → 0.1512 (~55% reduction) |
+| **Accuracy** (before → after) | 0.640 → 0.645 (+0.8% — no accuracy trade-off) |
+| **CV Accuracy** (5-fold baseline) | 0.643 ± 0.033 (stable, reproducible) |
+| **Over-approval shift** | Overall approval rate increases post-mitigation |
+| **Core insight** | Fairness metrics can be satisfied through approval inflation, not genuine de-biasing |
 
 ---
 
 ## Dataset
 
-**German Credit Dataset** (https://github.com/selva86/datasets/blob/master/GermanCredit.csv)
+| Property | Value |
+|----------|-------|
+| Name | German Credit Dataset |
+| Source | [UCI ML Repository](https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data) |
+| Size | 1,000 instances, 20 features |
+| Target | Credit risk: Good (1) / Bad (0) |
+| Sensitive attribute | Age group: Young (≤ 30) / Adult (> 30) |
+| License | CC BY 4.0 |
+| EU AI Act classification | **High-risk** (Annex III) |
 
-### Features:
-
-* Age
-* Credit amount
-* Loan duration
-* Financial attributes
-
-### Target:
-
-* `1` → Good credit
-* `0` → Bad credit
-
-### Sensitive Attribute:
-
-* **Age Group** (Young vs Adult)
+> **Download instructions:** See [`data/README.md`](data/README.md)
 
 ---
 
 ## Methodology
 
-### 1. Model
+### Pipeline Overview
 
-* Random Forest Classifier
-* Evaluated using:
+```
+German Credit Dataset
+        ↓
+Preprocessing → Stratified Train/Test Split
+        ↓
+Baseline Random Forest → 5-Fold CV + Fairness Audit (DP, EO)
+        ↓
+Exponentiated Gradient Reduction (Demographic Parity constraint)
+        ↓
+Post-Mitigation Fairness Audit → Over-Approval Analysis → SHAP Explainability
+        ↓
+EU AI Act Compliance Mapping
+```
 
-  * Train/Test split
-  * **Stratified 5-fold Cross-Validation**
+### 1. Baseline Model
 
----
+- **Algorithm:** Random Forest Classifier (100 trees)
+- **Validation:** 5-fold stratified cross-validation
+- **Metrics:** Accuracy, ROC-AUC, classification report
 
 ### 2. Fairness Evaluation
 
-#### Metrics:
-
-* Demographic Parity (DP)
-* Equal Opportunity (EO)
-
-#### Advanced (Fairlearn):
-
-* Demographic Parity Difference
-* Equalized Odds Difference
-
----
+| Metric | Question |
+|--------|----------|
+| **Demographic Parity (DP)** | Do both age groups get approved at equal rates? |
+| **Equal Opportunity (EO)** | Are creditworthy applicants approved equally across groups? |
+| **Demographic Parity Difference** | Absolute difference in approval rates between groups |
+| **Equalized Odds Difference** | Maximum difference in TPR/FPR between groups |
 
 ### 3. Bias Mitigation
 
-* Method: **Exponentiated Gradient Reduction**
-* Constraint: Demographic Parity
-* Tuned for balanced fairness–accuracy trade-off
-
----
+- **Method:** Exponentiated Gradient Reduction (Agarwal et al., 2018)
+- **Constraint:** Demographic Parity
+- **Mechanism:** Iteratively reweights training samples to satisfy the fairness constraint during training — not post-processing
 
 ### 4. Explainability (SHAP)
 
-* Global feature importance
-* Local explanations
-* Decision behavior analysis
+- Global feature importance (mean |SHAP| across all predictions)
+- Feature importance before mitigation — identifies which features drive decisions
+- Bar chart with age-related features highlighted in red
 
 ---
 
 ## Results
 
-### Cross-Validation Performance
+### Model Performance
 
-* Accuracy: **0.643 ± 0.033**
+| Metric | Before Mitigation | After Mitigation | Change |
+|--------|------------------|-----------------|--------|
+| Accuracy | 0.640 | 0.645 | +0.8% |
+| ROC-AUC | — | — | — |
+| CV Accuracy (5-fold) | 0.643 ± 0.033 | — | — |
 
- Indicates stable and reproducible model performance.
+### Fairness Metrics
 
----
-
-### Fairness Metrics: Before vs After Mitigation
-
-| Metric        | Before | After  | Improvement    |
-| ------------- | ------ | ------ | -------------- |
-| Accuracy      | 0.640  | 0.645  | +0.8%          |
-| DP Difference | 0.3040 | 0.1055 | ~65% reduction |
-| EO Difference | 0.3367 | 0.1512 | ~55% reduction |
-
----
-
-### Visualizations
-
-**Fairness Comparison**
-![Fairness Before vs After](outputs/bias_comparison.png)
+| Metric | Before | After | Reduction |
+|--------|--------|-------|-----------|
+| DP Difference | 0.3040 | 0.1055 | **~65%** |
+| EO Difference | 0.3367 | 0.1512 | **~55%** |
 
 ---
 
-**Prediction Distribution (Post-Mitigation)**
+## Visualisations
+
+### Fairness Comparison — Before vs After Mitigation
+
+![Fairness Comparison](outputs/bias_comparison.png)
+
+*DP and EO differences both reduce substantially after mitigation.
+Accuracy is preserved — no fairness-accuracy trade-off in this case.*
+
+---
+
+### Over-Approval Analysis — Prediction Distribution Shift
+
 ![Prediction Distribution](outputs/prediction_distribution.png)
 
+*After mitigation, overall approval rates increase. The per-group breakdown
+reveals whether parity was achieved by raising the floor (inflating Young approvals)
+or genuinely improving decision quality.*
+
 ---
 
-**SHAP Feature Importance**
+### SHAP Feature Importance — What Drives Credit Decisions?
+
 ![SHAP Summary](outputs/shap_summary.png)
 
----
-
-## Key Research Insights
-
-### 1. Significant Bias Reduction
-
-* DP reduced by ~65%
-* EO reduced by ~55%
-
- Mitigation effectively reduces demographic disparities.
+*Each dot represents one prediction. Red = high feature value, Blue = low.
+Horizontal position shows whether the feature pushed the prediction positive or negative.
+Age-related features highlighted — their presence in top positions indicates
+reliance on a protected demographic characteristic.*
 
 ---
 
-### 2. No Accuracy Trade-off
+## The Over-Approval Paradox
 
-* Accuracy slightly improved (**+0.8%**)
+This is the core research contribution of this project.
 
- Strong result: fairness improved **without degrading performance**
+**The problem:** After enforcing demographic parity, the model's overall approval
+rate increases. Two fundamentally different mechanisms could explain this:
 
----
+1. **Genuine de-biasing:** The model learned to assess Young applicants on financial
+   merit rather than age, correctly approving more creditworthy Young applicants
+2. **Approval inflation:** The optimizer raised the overall approval rate, making
+   parity trivially achievable by approving nearly everyone
 
-### 3. Decision Behavior Shift
+**Why fairness metrics cannot distinguish these:**  
+Both mechanisms produce identical DP Difference scores. Only auditing the
+*distribution shift* (who is being newly approved, and are they creditworthy?)
+can reveal which mechanism is operating.
 
-* **80% approvals vs 20% rejections**
-
- Model becomes slightly more permissive after mitigation.
-
----
-
-### 4. Model Stability & Reproducibility
-
-* Cross-validation variance: **±0.033**
-* Fixed random seeds ensure consistent results
-
- Results are **reliable and reproducible**
+**EU AI Act implication:** Art. 10 requires bias monitoring, but the current
+guidance does not require post-mitigation distribution audits. This is a gap.
 
 ---
 
-### 5. Fairness is Multi-Dimensional
+## EU AI Act Alignment
 
-* DP improved significantly
-* EO improved moderately
-
- No single fairness metric captures all bias aspects
+| Article | Requirement | This Project's Evidence |
+|---------|-------------|------------------------|
+| **Art. 10** | Data governance — monitor protected characteristics | DP/EO metrics quantify age group disparity; SHAP identifies age feature reliance |
+| **Art. 13** | Transparency — interpretable explanations | SHAP global importance + per-feature breakdown; fairness metrics by group |
+| **Art. 14** | Human oversight — identify cases needing review | Over-approval analysis flags systematic decisions needing human verification |
+| **Art. 15** | Accuracy & robustness — stable performance | 5-fold CV reports accuracy as 0.643 ± 0.033, not a single-split number |
 
 ---
 
 ## Limitations
 
-* Residual bias still exists after mitigation
-* Fairness improvements may affect decision behavior
-* SHAP assumes feature independence
-* Results depend on dataset characteristics
+**Technical:**
+- Only one sensitive attribute analysed (age group) — intersectional analysis (age × gender) not yet included
+- Exponentiated Gradient Reduction is one of several mitigation techniques — Reweighing and Calibrated EO not compared
+- SHAP assumes feature independence — correlated features may have misleading importance scores
+- German Credit has 1,000 instances — results may not generalise to production-scale data
+
+**Methodological:**
+- Over-approval analysis is qualitative — a quantitative test requires follow-up data on whether approved applicants repaid
+- EO difference still at 0.1512 post-mitigation — residual bias remains
+- Single dataset limits generalisability of the over-approval finding
+
+**Scope:**
+- This project detects bias and applies mitigation — it does not determine whether the decisions violate any specific regulation (that requires legal analysis)
+- The fairness–accuracy trade-off may manifest differently on imbalanced or larger datasets
 
 ---
 
-## Ethical Implications
+## Related Work
 
-* Fairness ≠ correctness
-* Bias reduction alone is insufficient
-* Sensitive features (e.g., age) require careful governance
-
- Responsible AI requires balancing:
-
-* Fairness
-* Accuracy
-* Real-world impact
-
----
-
-## Policy & Governance Relevance
-
-This work aligns with **EU AI Act requirements** for high-risk systems such as:
-
-* Credit scoring
-* Financial decision-making
-
-Key compliance aspects demonstrated:
-
-* Bias monitoring
-* Transparency
-* Accountability
+- Agarwal et al. (2018) — *A Reductions Approach to Fair Classification* (Exponentiated Gradient)
+- Barocas & Hardt (2019) — *Fairness and Machine Learning* (fairness metrics framework)
+- Wachter et al. (2021) — *Why Fairness Cannot Be Automated* (limits of technical fairness)
+- Selbst et al. (2019) — *Fairness and Abstraction in Sociotechnical Systems*
 
 ---
 
 ## Tech Stack
 
-* Python
-* Pandas, NumPy
-* Scikit-learn
-* Fairlearn
-* SHAP
-* Matplotlib
+| Library | Purpose |
+|---------|---------|
+| `scikit-learn` | Model training, cross-validation, metrics |
+| `fairlearn` | Fairness metrics, Exponentiated Gradient Reduction |
+| `shap` | Feature importance and explainability |
+| `pandas`, `numpy` | Data manipulation |
+| `matplotlib`, `seaborn` | Visualisation |
+
+**Python version:** 3.8+
 
 ---
 
 ## Project Structure
 
 ```
-ai-fairness-loan-audit/
+AI_Fairness_Loan_Audit/
 │
 ├── data/
+│   └── README.md           ← Dataset download instructions
 ├── notebooks/
+│   └── 01_fairness_analysis.ipynb  ← Full analysis (start here)
 ├── src/
+│   ├── data_loader.py
+│   ├── preprocessing.py
+│   ├── model.py
+│   └── fairlearn_analysis.py
 ├── outputs/
+│   ├── bias_comparison.png
+│   ├── prediction_distribution.png
+│   ├── shap_summary.png
+│   ├── shap_bar.png
+│   └── fairness_results_summary.csv
+├── findings.md             ← Standalone research findings document
 ├── main.py
 ├── requirements.txt
 └── README.md
@@ -239,54 +264,57 @@ ai-fairness-loan-audit/
 
 ## How to Run
 
+### Step 1 — Install dependencies
+
 ```bash
 pip install -r requirements.txt
+```
+
+> Requires Python 3.8+
+
+### Step 2 — Download dataset
+
+Follow instructions in [`data/README.md`](data/README.md).
+
+### Step 3 — Run the full pipeline
+
+```bash
 python main.py
 ```
 
----
+### Step 4 — Explore the notebook
 
-## Outputs
-
-* Fairness metrics (before vs after mitigation)
-* Cross-validation results
-* Bias comparison plots
-* Prediction distribution analysis
-* SHAP explainability visualizations
+Open `notebooks/01_fairness_analysis.ipynb` for step-by-step analysis
+with interpretations, visualisations, and research framing.
 
 ---
 
-## Future Work
+## Portfolio Context
 
-* Multi-attribute fairness (gender, income)
-* Causal fairness methods
-* Real-world financial datasets
-* Regulatory compliance automation
+This project is **Part 1 of a 3-part Responsible AI portfolio**:
+
+| Part | Focus | Repository |
+|------|-------|-----------|
+| **1** | **Fairness & Bias Mitigation** | **This repository** |
+| 2 | Explainability (XAI) | [XAI_Credit_Risk](https://github.com/Saurabh-pilaniya07/XAI_Credit_Risk) |
+| 3 | AI Governance & Policy | *(Coming soon)* |
+
+**The unified argument:**  
+Responsible AI is not a single solution. It requires integrated evaluation across
+technical methods (fairness metrics, XAI), governance frameworks (EU AI Act compliance),
+and domain-specific context — simultaneously.
 
 ---
 
 ## Research Positioning
 
-This project demonstrates a shift from:
+This work moves beyond asking *"Is the model accurate?"* to asking:
 
-> **Model-centric AI → Responsible AI systems**
+> *"Does the model treat all demographic groups equitably — and how can we tell?"*
 
-Focusing on:
+**Technical contribution:** A reproducible fairness audit pipeline applying DP/EO
+metrics, Exponentiated Gradient Reduction, and SHAP explainability to credit scoring.
 
-* Ethical deployment
-* Fairness-aware design
-* Policy-aligned machine learning
-
----
-
-## Conclusion
-
-This work shows that **accuracy alone is insufficient** in high-stakes AI systems.
-
-By integrating fairness, mitigation, and explainability, it highlights:
-
-* The importance of multi-metric evaluation
-* The complexity of fairness–performance trade-offs
-* The need for policy-aligned AI development
-
- **Responsible AI requires both technical rigor and ethical accountability.**
+**Research contribution:** Evidence that the over-approval paradox can arise from
+constraint-based fairness mitigation — a risk not currently addressed by EU AI Act
+guidance — and a proposal for SHAP-based post-mitigation diagnostics.
