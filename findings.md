@@ -123,7 +123,7 @@ and at what thresholds.
 | Rank | Feature | Mean \|SHAP\| | Note |
 |------|---------|--------------|------|
 | 1 | `amount_per_duration` | **0.0747** | Engineered ratio — highest overall influence |
-| 2 | `age` | **0.0672** | Protected demographic characteristic ⚠️ |
+| 2 | `age` | **0.0672** | Protected demographic characteristic |
 | 3 | `duration` | **0.0561** | Loan term |
 | 4 | `amount` | **0.0542** | Loan amount |
 
